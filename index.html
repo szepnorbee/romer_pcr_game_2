@@ -70,23 +70,6 @@
             border-radius: 50%;
         }
 
-        .liquid-wave {
-            position: absolute;
-            top: -10px;
-            left: -50%;
-            width: 200%;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 40%;
-            animation: wave-rotate 4s infinite linear;
-            pointer-events: none;
-        }
-
-        @keyframes wave-rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
         .vial {
             position: relative;
             width: 70px;
@@ -258,7 +241,6 @@
                         <div id="zone-0" class="perfect-zone"></div>
                         <div id="liquid-0" class="liquid-fill" style="height: 0%">
                             <div id="surface-0" class="liquid-surface"></div>
-                            <div class="liquid-wave"></div>
                         </div>
                     </div>
                     <span id="toxin-0" class="toxin-label font-bold uppercase">Aflatoxin</span>
@@ -269,7 +251,6 @@
                         <div id="zone-1" class="perfect-zone"></div>
                         <div id="liquid-1" class="liquid-fill" style="height: 0%">
                             <div id="surface-1" class="liquid-surface"></div>
-                            <div class="liquid-wave"></div>
                         </div>
                     </div>
                     <span id="toxin-1" class="toxin-label font-bold uppercase">DON</span>
@@ -280,7 +261,6 @@
                         <div id="zone-2" class="perfect-zone"></div>
                         <div id="liquid-2" class="liquid-fill" style="height: 0%">
                             <div id="surface-2" class="liquid-surface"></div>
-                            <div class="liquid-wave"></div>
                         </div>
                     </div>
                     <span id="toxin-2" class="toxin-label font-bold uppercase">Ochratoxin</span>
