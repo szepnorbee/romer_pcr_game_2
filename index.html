@@ -9,18 +9,15 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
         :root {
-            /* Színek a beküldött kép alapján */
             --romer-teal: #005c5c;
             --romer-teal-dark: #004545;
             --romer-teal-light: #007373;
-            --romer-accent-gold: #ffc745; /* A Sign-up gomb színe */
-            --liquid-color: rgba(0, 161, 225, 0.85);
+            --romer-accent-gold: #ffc745;
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background: var(--romer-teal);
-            /* A képen látható finom gradiens hatás */
             background: radial-gradient(circle at top right, var(--romer-teal-light) 0%, var(--romer-teal) 100%);
             overflow: hidden;
             height: 100vh;
@@ -53,10 +50,9 @@
             transform: translateY(12px);
         }
 
-        /* Folyadék stílusok */
+        /* Liquid Styles */
         .liquid-fill {
             transition: height 0.15s ease-out;
-            background: linear-gradient(180deg, #00d2ff 0%, #00a1e1 100%);
             position: absolute;
             bottom: 0;
             width: 100%;
@@ -71,9 +67,7 @@
             left: 0;
             width: 100%;
             height: 12px;
-            background: #00d2ff;
             border-radius: 50%;
-            box-shadow: 0 -2px 10px rgba(0, 210, 255, 0.5);
         }
 
         .liquid-wave {
@@ -91,15 +85,6 @@
         @keyframes wave-rotate {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
-        }
-
-        .vial.filling .liquid-fill {
-            animation: slosh 0.2s infinite alternate ease-in-out;
-        }
-
-        @keyframes slosh {
-            from { transform: scaleX(1); }
-            to { transform: scaleX(1.02); }
         }
 
         .vial {
@@ -137,11 +122,26 @@
             z-index: 5;
         }
 
+        /* Particle effects */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 150;
+            animation: splash-particle 0.6s ease-out forwards;
+        }
+
+        @keyframes splash-particle {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
         .drip {
             position: absolute;
             width: 6px;
             height: 10px;
-            background: #00d2ff;
             border-radius: 50%;
             top: 0;
             left: 0;
@@ -209,12 +209,10 @@
 </head>
 <body class="flex items-center justify-center">
 
-    <!-- background 404 text -->
     <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none select-none">
         <h1 class="text-[30vw] font-black">404</h1>
     </div>
 
-    <!-- UI Overlay -->
     <div class="fixed top-8 left-8 right-8 flex justify-between items-start z-40">
         <div>
             <h2 class="text-3xl font-extrabold text-white leading-tight">Oops! Page not found.</h2>
@@ -254,35 +252,34 @@
         <div id="active-game" class="hidden flex flex-col items-center w-full max-w-4xl px-10">
             <p class="text-white/30 text-xs font-black uppercase tracking-[0.4em] mb-12">RomerLabs ELISA Test Portfolio</p>
             <div id="vials-row" class="flex justify-around items-end w-full gap-8">
-                <!-- Vials -->
-                <div class="flex flex-col items-center gap-6">
+                <div class="flex flex-col items-center gap-6" data-vial="0">
                     <div id="vial-0" class="vial" data-index="0">
                         <div id="target-0" class="target-line"></div>
                         <div id="zone-0" class="perfect-zone"></div>
                         <div id="liquid-0" class="liquid-fill" style="height: 0%">
-                            <div class="liquid-surface"></div>
+                            <div id="surface-0" class="liquid-surface"></div>
                             <div class="liquid-wave"></div>
                         </div>
                     </div>
                     <span id="toxin-0" class="toxin-label font-bold uppercase">Aflatoxin</span>
                 </div>
-                <div class="flex flex-col items-center gap-6">
+                <div class="flex flex-col items-center gap-6" data-vial="1">
                     <div id="vial-1" class="vial" data-index="1">
                         <div id="target-1" class="target-line"></div>
                         <div id="zone-1" class="perfect-zone"></div>
                         <div id="liquid-1" class="liquid-fill" style="height: 0%">
-                            <div class="liquid-surface"></div>
+                            <div id="surface-1" class="liquid-surface"></div>
                             <div class="liquid-wave"></div>
                         </div>
                     </div>
                     <span id="toxin-1" class="toxin-label font-bold uppercase">DON</span>
                 </div>
-                <div class="flex flex-col items-center gap-6">
+                <div class="flex flex-col items-center gap-6" data-vial="2">
                     <div id="vial-2" class="vial" data-index="2">
                         <div id="target-2" class="target-line"></div>
                         <div id="zone-2" class="perfect-zone"></div>
                         <div id="liquid-2" class="liquid-fill" style="height: 0%">
-                            <div class="liquid-surface"></div>
+                            <div id="surface-2" class="liquid-surface"></div>
                             <div class="liquid-wave"></div>
                         </div>
                     </div>
@@ -296,7 +293,6 @@
             </div>
         </div>
 
-        <!-- Result Screens -->
         <div id="round-result" class="hidden absolute glass-panel p-10 rounded-3xl text-center z-50 min-w-[300px]">
             <h4 id="result-title" class="text-2xl font-black mb-2">Result</h4>
             <p id="result-score" class="text-lg text-white/70 mb-8">+0 points</p>
@@ -306,28 +302,37 @@
         <div id="end-screen" class="hidden glass-panel p-12 rounded-3xl text-center max-w-lg z-50">
             <h3 class="text-4xl font-black text-white mb-2">Final Report</h3>
             <p class="text-white/60 mb-8 text-sm italic">"Making the World's Food Safer"</p>
-            
             <div class="bg-white/5 p-8 rounded-2xl mb-8 border border-white/10">
                 <p class="stat-label mb-2">Expertise Level</p>
                 <p id="expertise-level" class="text-xl font-bold text-[var(--romer-accent-gold)] mb-6">Standard</p>
-                
                 <p class="stat-label mb-1">Total Accuracy Score</p>
                 <p id="final-score" class="text-5xl font-black text-white">0</p>
             </div>
-            
             <button onclick="location.reload()" class="btn-romer py-4 px-12 rounded-xl shadow-lg uppercase tracking-wider text-sm w-full mb-4">New Analysis</button>
-            <a href="https://www.romerlabs.com" class="text-white/40 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors">Go to Website</a>
         </div>
     </div>
 
-    <!-- Tilted Pipette Asset -->
+    <!-- Hand-held Tilted Pipette Asset with Glossy effect -->
     <div id="pipette-container">
         <svg width="50" height="320" viewBox="0 0 50 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="gloss" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0" />
+                    <stop offset="30%" style="stop-color:#ffffff;stop-opacity:0.3" />
+                    <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0.6" />
+                    <stop offset="70%" style="stop-color:#ffffff;stop-opacity:0.3" />
+                    <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+                </linearGradient>
+            </defs>
             <rect class="plunger" x="15" y="0" width="20" height="35" rx="3" fill="#475569" />
             <rect class="plunger" x="22" y="30" width="6" height="40" fill="#94A3B8" />
+            
             <rect x="10" y="55" width="30" height="150" rx="6" fill="white" stroke="#CBD5E1" stroke-width="1"/>
+            <rect x="12" y="55" width="26" height="150" fill="url(#gloss)" pointer-events="none" />
+            
             <rect x="15" y="75" width="20" height="30" rx="2" fill="#0F172A" />
             <text x="25" y="95" font-family="monospace" font-size="9" font-weight="bold" fill="#38BDF8" text-anchor="middle" id="pipette-display">0.0</text>
+            
             <path d="M10 205H40L30 250H20L10 205Z" fill="white" stroke="#CBD5E1" stroke-width="1"/>
             <path d="M20 250H30L27 295C27 297.2 26.1 298 25 298C23.9 298 23 297.2 23 295L20 250Z" fill="white" fill-opacity="0.3" stroke="#94A3B8" stroke-width="1"/>
             <circle id="pipette-nozzle-liquid" cx="25" cy="295" r="2.5" fill="#00d2ff" opacity="0" />
@@ -338,6 +343,14 @@
         const VIAL_COUNT = 3;
         const ELISA_TOXINS = ["Aflatoxin", "DON", "Ochratoxin", "Zearalenone", "Fumonisin", "T-2 / HT-2", "Ergot Alkaloids"];
         
+        // Color configuration for Blue, Green, Red
+        const VIAL_COLORS = ['#00d2ff', '#4ade80', '#f87171'];
+        const VIAL_GRADIENTS = [
+            'linear-gradient(180deg, #00d2ff 0%, #00a1e1 100%)',
+            'linear-gradient(180deg, #4ade80 0%, #16a34a 100%)',
+            'linear-gradient(180deg, #f87171 0%, #dc2626 100%)'
+        ];
+
         let currentRound = 1;
         let totalScore = 0;
         let gameActive = false;
@@ -368,11 +381,14 @@
                     clearActiveVials();
                     activeVialIndex = idx;
                     vialElem.classList.add('active-vial');
+                    // Update pipette nozzle color to match current vial
+                    nozzleLiquid.setAttribute('fill', VIAL_COLORS[idx]);
                 }
             } else {
                 if (!isDispensing) {
                     activeVialIndex = -1;
                     clearActiveVials();
+                    nozzleLiquid.setAttribute('fill', '#00d2ff');
                 }
             }
         });
@@ -430,22 +446,48 @@
             const speedText = currentRound === 1 ? "Normal" : (currentRound === 2 ? "Fast" : "EXPERT");
             document.getElementById('speed-indicator').innerText = `Speed: ${speedText}`;
 
-            const shuffled = [...ELISA_TOXINS].sort(() => 0.5 - Math.random());
+            const shuffledToxins = [...ELISA_TOXINS].sort(() => 0.5 - Math.random());
             
             for (let i = 0; i < VIAL_COUNT; i++) {
                 const liquid = document.getElementById(`liquid-${i}`);
+                const surface = document.getElementById(`surface-${i}`);
                 const target = document.getElementById(`target-${i}`);
                 const zone = document.getElementById(`zone-${i}`);
                 const label = document.getElementById(`toxin-${i}`);
                 
-                label.innerText = shuffled[i];
+                label.innerText = shuffledToxins[i];
                 liquid.style.height = '0%';
+                
+                // Set specific colors for each vial
+                liquid.style.background = VIAL_GRADIENTS[i];
+                surface.style.background = VIAL_COLORS[i];
+                surface.style.boxShadow = `0 -2px 10px ${VIAL_COLORS[i]}80`;
+
                 targetLevels[i] = 25 + Math.random() * 55;
                 target.style.bottom = targetLevels[i] + '%';
                 
                 const tolerance = 5 - currentRound;
                 zone.style.height = (tolerance * 2) + '%';
                 zone.style.bottom = (targetLevels[i] - tolerance) + '%';
+            }
+        }
+
+        function createSplash(x, y, color) {
+            for(let i=0; i<8; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = x + 'px';
+                p.style.top = y + 'px';
+                p.style.backgroundColor = color;
+                
+                const tx = (Math.random() - 0.5) * 60;
+                const ty = -Math.random() * 40;
+                
+                p.style.setProperty('--tx', tx + 'px');
+                p.style.setProperty('--ty', ty + 'px');
+                
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 600);
             }
         }
 
@@ -470,19 +512,28 @@
 
                 const drip = document.createElement('div');
                 drip.className = 'drip';
-                drip.style.left = pipette.style.left;
-                drip.style.top = pipette.style.top;
+                const currentX = parseFloat(pipette.style.left);
+                const currentY = parseFloat(pipette.style.top);
+                drip.style.left = currentX + 'px';
+                drip.style.top = currentY + 'px';
+                
+                // Match drip color to active vial
+                const currentColor = VIAL_COLORS[activeVialIndex];
+                drip.style.backgroundColor = currentColor;
 
                 const vialElem = document.getElementById(`vial-${activeVialIndex}`);
                 const vialRect = vialElem.getBoundingClientRect();
-                const nozzleY = parseFloat(pipette.style.top);
                 const liquidSurfaceY = vialRect.bottom - (currentHeights[activeVialIndex] / 100 * vialRect.height);
                 
-                const fallDistance = Math.max(0, liquidSurfaceY - nozzleY);
+                const fallDistance = Math.max(0, liquidSurfaceY - currentY);
                 drip.style.setProperty('--fall-dist', `${fallDistance}px`);
                 
                 document.body.appendChild(drip);
-                setTimeout(() => drip.remove(), 400);
+                
+                setTimeout(() => {
+                    drip.remove();
+                    createSplash(currentX, liquidSurfaceY, currentColor);
+                }, 400);
             }, 120);
         }
 
