@@ -43,7 +43,8 @@
             z-index: 100;
             transform-origin: 25px 295px; 
             transform: translate(-25px, -295px) rotate(25deg) scale(0.5);
-            transition: transform 0.05s ease-out;
+            transition: transform 0.05s ease-out, opacity 0.3s ease;
+            opacity: 0; /* Start hidden */
         }
 
         .plunger {
@@ -203,6 +204,7 @@
             filter: brightness(1.1);
             transform: translateY(-3px);
             box-shadow: 0 10px 20px rgba(255, 199, 69, 0.3);
+            cursor: pointer;
         }
 
         .toxin-label {
@@ -273,7 +275,7 @@
         </div>
     </div>
 
-    <div id="game-container" class="relative w-full h-full flex items-center justify-center cursor-none">
+    <div id="game-container" class="relative w-full h-full flex items-center justify-center">
         
         <!-- Start Screen -->
         <div id="start-screen" class="glass-panel p-14 rounded-[2rem] text-center max-w-lg z-50">
@@ -413,9 +415,23 @@
         const pipette = document.getElementById('pipette-container');
         const pipetteDisplay = document.getElementById('pipette-display');
         const nozzleLiquid = document.getElementById('pipette-nozzle-liquid');
+        const gameContainer = document.getElementById('game-container');
+
+        // Function to toggle between pipette cursor and system cursor
+        function toggleGameCursor(enablePipette) {
+            if (enablePipette) {
+                gameContainer.style.cursor = 'none';
+                pipette.style.opacity = '1';
+            } else {
+                gameContainer.style.cursor = 'default';
+                pipette.style.opacity = '0';
+            }
+        }
 
         document.addEventListener('mousemove', (e) => {
-            if (!gameActive) return;
+            // Only update pipette position if game is in an active round state
+            if (!gameActive || roundOver) return;
+            
             pipette.style.left = e.clientX + 'px';
             pipette.style.top = e.clientY + 'px';
 
@@ -506,6 +522,8 @@
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('active-game').classList.remove('hidden');
             gameActive = true;
+            roundOver = false;
+            toggleGameCursor(true);
             initRound();
         }
 
@@ -518,6 +536,9 @@
             document.getElementById('round-display').innerText = `${currentRound} / 3`;
             document.getElementById('round-result').classList.add('hidden');
             
+            // Re-enable game cursor when starting a new round
+            toggleGameCursor(true);
+
             const speedText = currentRound === 1 ? "Normal" : (currentRound === 2 ? "High" : "EXPERT");
             document.getElementById('speed-indicator').innerText = `Calibration: ${speedText}`;
 
@@ -541,8 +562,6 @@
                 targetLevels[i] = 25 + Math.random() * 55;
                 target.style.bottom = targetLevels[i] + '%';
                 
-                // Set tolerance based on round: 8% (R1), 5% (R2), 2% (R3)
-                // Linear progression: 11 - (round * 3)
                 const tolerance = 11 - (currentRound * 3);
                 zone.style.height = (tolerance * 2) + '%';
                 zone.style.bottom = (targetLevels[i] - tolerance) + '%';
@@ -648,6 +667,9 @@
             pipette.classList.remove('dispensing');
             nozzleLiquid.style.opacity = '0';
             stopDrip();
+            
+            // Show system cursor for the results menu
+            toggleGameCursor(false);
 
             let roundPoints = 0;
             let totalDeviation = 0;
@@ -700,6 +722,9 @@
             const endScreen = document.getElementById('end-screen');
             document.getElementById('final-score').innerText = totalScore;
             
+            // Show system cursor for final report
+            toggleGameCursor(false);
+
             let level = "Lab Assistant";
             if (totalScore > 2600) level = "Principal Scientist";
             else if (totalScore > 2000) level = "Senior Researcher";
@@ -708,6 +733,9 @@
             endScreen.classList.remove('hidden');
             gameActive = false;
         }
+
+        // Initialize with default cursor for the start screen
+        toggleGameCursor(false);
     </script>
 </body>
 </html>
