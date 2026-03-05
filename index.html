@@ -298,7 +298,7 @@
             transform: translateX(-2px);
         }
 
-        /* GLP Certificate Styles */
+        /* GLP Certificate Styles with Wordcloud background */
         #glp-certificate {
             background: white;
             color: var(--romer-teal-dark);
@@ -307,27 +307,26 @@
             border: 15px double var(--romer-teal);
             position: relative;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            /* Background Wordcloud */
+            /* Consistent Wordcloud Background */
             background-image: url('wordcloud_export.png');
-            background-size: 80%;
+            background-size: 90%;
             background-position: center;
             background-repeat: no-repeat;
             background-blend-mode: soft-light;
         }
 
-        /* Ensure text is readable over wordcloud */
-        #glp-certificate > * {
-            position: relative;
-            z-index: 2;
-        }
-
-        /* Faded overlay for wordcloud background */
+        /* Faded overlay for wordcloud background inside certificate */
         #glp-certificate::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.88);
             z-index: 1;
+        }
+
+        #glp-certificate > * {
+            position: relative;
+            z-index: 2;
         }
 
         .cert-stamp {
@@ -362,7 +361,7 @@
             stroke-width: 2;
         }
 
-        /* PRINT STYLES - Crucial for clean certificate printing */
+        /* PRINT STYLES */
         @media print {
             @page {
                 size: portrait;
@@ -373,7 +372,6 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
-            /* Hide everything except the certificate */
             body > *:not(#game-container),
             #game-container > *:not(#end-screen),
             #end-screen > *:not(#glp-certificate),
@@ -382,7 +380,6 @@
             .flex.gap-4 {
                 display: none !important;
             }
-            /* Reset end-screen centering for printing */
             #end-screen {
                 display: block !important;
                 position: absolute;
@@ -402,9 +399,10 @@
                 display: flex !important;
                 flex-direction: column !important;
                 justify-content: center !important;
+                background-image: url('wordcloud_export.png') !important;
             }
             #glp-certificate::before {
-                background: rgba(255, 255, 255, 0.7) !important;
+                background: rgba(255, 255, 255, 0.8) !important;
             }
         }
     </style>
@@ -530,7 +528,7 @@
                 </div>
                 
                 <div class="space-y-4 mb-4 text-sm">
-                    <p>Ezennel tanúsítjuk, hogy a mérést végző analitikus sikeresen teljesítette a <strong>RomerLabs ELISA Precision Challenge</strong> diagnosztikai kihívást.</p>
+                    <p>This is to certify that the analyst has successfully completed the <strong>RomerLabs ELISA Precision Challenge</strong> diagnostic test.</p>
                     <div class="flex justify-between border-b border-teal-100 pb-1 mt-6">
                         <span class="font-bold">Expertise Level:</span>
                         <span id="expertise-level" class="font-black text-teal-700">Standard</span>
@@ -541,7 +539,7 @@
                     </div>
                     <div class="flex justify-between border-b border-teal-100 pb-1">
                         <span class="font-bold">Date of Analysis:</span>
-                        <span id="cert-date" class="italic">2024.05.22</span>
+                        <span id="cert-date" class="italic">2026-03-05</span>
                     </div>
                 </div>
 
@@ -622,7 +620,7 @@
         let activeVialIndex = -1;
         let vialsFilledCount = 0;
         let filledStatus = [false, false, false];
-        let allDeviations = []; // To store signed deviation for Levey-Jennings
+        let allDeviations = []; 
 
         const pipette = document.getElementById('pipette-container');
         const pipetteDisplay = document.getElementById('pipette-display');
@@ -705,7 +703,6 @@
             const tag = document.getElementById(`precision-${index}`);
             const streakBadge = document.getElementById(`streak-${index}`);
             
-            // Collect deviation for chart
             allDeviations.push(rawDiff);
 
             let accuracy = Math.max(0, 100 - (diff * 2)).toFixed(1);
@@ -977,7 +974,6 @@
             
             svg.innerHTML = '';
             
-            // Draw grid lines (Mean, +/- SD)
             const gridLines = [-30, -20, -10, 0, 10, 20, 30];
             gridLines.forEach(val => {
                 const lineY = centerY - (val * 2);
@@ -991,7 +987,6 @@
                 svg.appendChild(line);
             });
 
-            // Draw data points
             let pathD = "";
             allDeviations.forEach((dev, idx) => {
                 const px = stepX * (idx + 1);
@@ -1020,7 +1015,7 @@
             const endScreen = document.getElementById('end-screen');
             
             document.getElementById('final-score').innerText = totalScore;
-            document.getElementById('cert-date').innerText = new Date().toLocaleDateString('hu-HU');
+            document.getElementById('cert-date').innerText = new Date().toISOString().split('T')[0];
             
             toggleGameCursor(false);
             
@@ -1033,7 +1028,6 @@
             
             document.getElementById('expertise-level').innerText = level;
 
-            // Fix the error by ensuring the element exists before writing to it
             const socialProof = document.getElementById('social-proof-text');
             if (socialProof) {
                 socialProof.innerText = `You outperformed ${outperformed}% of other specialists.`;
@@ -1043,7 +1037,6 @@
             endScreen.classList.add('flex');
             gameActive = false;
 
-            // Generate Levey-Jennings Chart
             drawLeveyJennings();
         }
 
