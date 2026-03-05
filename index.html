@@ -37,6 +37,16 @@
             box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
         }
 
+        /* Screen Shake Animation */
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0); }
+            10%, 30%, 50%, 70%, 90% { transform: translate(-4px, 0); }
+            20%, 40%, 60%, 80% { transform: translate(4px, 0); }
+        }
+        .shake-effect {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
         #pipette-container {
             position: absolute;
             pointer-events: none;
@@ -96,17 +106,6 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .vial::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 15%;
-            width: 15%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            pointer-events: none;
-        }
-
         .vial.active-vial {
             border-color: var(--romer-accent-gold);
             box-shadow: 0 0 25px rgba(255, 199, 69, 0.3), inset 0 0 10px rgba(255, 199, 69, 0.1);
@@ -154,24 +153,24 @@
             top: -75px;
         }
 
-        /* Fixed CSS for the calibration overlay */
         #calibration-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0, 69, 69, 0.95);
+            background: rgba(0, 69, 69, 0.98);
             z-index: 1000;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            transition: opacity 0.5s ease;
         }
 
         .loader-bar {
-            width: 200px;
-            height: 4px;
+            width: 240px;
+            height: 6px;
             background: rgba(255,255,255,0.1);
-            border-radius: 2px;
+            border-radius: 3px;
             overflow: hidden;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         .loader-fill {
@@ -212,20 +211,6 @@
             100% { transform: translateY(var(--fall-dist)) scale(0.8); opacity: 0; }
         }
 
-        .bubble {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            bottom: 0;
-            animation: float-up 1s ease-in forwards;
-        }
-
-        @keyframes float-up {
-            0% { transform: translateY(0) scale(0); opacity: 0; }
-            50% { opacity: 0.5; }
-            100% { transform: translateY(-50px) scale(1.6); opacity: 0; }
-        }
-
         .btn-romer {
             background-color: var(--romer-accent-gold);
             color: var(--romer-teal-dark);
@@ -251,6 +236,22 @@
             backdrop-filter: blur(5px);
             font-weight: 600;
         }
+
+        .streak-badge {
+            position: absolute;
+            top: -110px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--romer-accent-gold);
+            font-weight: 900;
+            font-size: 0.9rem;
+            text-shadow: 0 0 10px rgba(255,199,69,0.5);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .streak-badge.active { opacity: 1; }
 
         .stat-label {
             color: rgba(255, 255, 255, 0.5);
@@ -279,7 +280,7 @@
         }
     </style>
 </head>
-<body class="flex items-center justify-center">
+<body id="main-body" class="flex items-center justify-center">
 
     <div class="fixed inset-0 flex items-center justify-center opacity-40 pointer-events-none z-[-1] overflow-hidden">
         <img src="wordcloud_export.png" alt="RomerLabs Wordcloud Logo" class="w-full h-full max-w-[110%] max-h-[110%] object-contain scale-110" onerror="this.style.display='none'">
@@ -306,9 +307,9 @@
         </div>
     </div>
 
-    <!-- The overlay now correctly uses Tailwind hidden for logic -->
     <div id="calibration-overlay" class="hidden">
-        <p class="stat-label text-white">Calibrating Diagnostic Equipment...</p>
+        <p class="stat-label text-white mb-2">System Initialization</p>
+        <p id="lab-fact" class="text-[10px] text-white/50 italic max-w-xs text-center">Optimizing diagnostic accuracy parameters...</p>
         <div class="loader-bar">
             <div id="loader-fill" class="loader-fill"></div>
         </div>
@@ -334,6 +335,7 @@
         <div id="active-game" class="hidden flex flex-col items-center w-full max-w-5xl px-10">
             <div id="vials-row" class="flex justify-around items-end w-full gap-12 mt-12">
                 <div class="flex flex-col items-center gap-8 relative" data-vial="0">
+                    <div id="streak-0" class="streak-badge">COMBO X2</div>
                     <div id="precision-0" class="precision-tag glass-panel">--%</div>
                     <div id="vial-0" class="vial" data-index="0">
                         <div id="target-0" class="target-line"></div>
@@ -345,6 +347,7 @@
                     <span id="toxin-0" class="toxin-label uppercase">Aflatoxin</span>
                 </div>
                 <div class="flex flex-col items-center gap-8 relative" data-vial="1">
+                    <div id="streak-1" class="streak-badge">COMBO X2</div>
                     <div id="precision-1" class="precision-tag glass-panel">--%</div>
                     <div id="vial-1" class="vial" data-index="1">
                         <div id="target-1" class="target-line"></div>
@@ -356,6 +359,7 @@
                     <span id="toxin-1" class="toxin-label uppercase">DON</span>
                 </div>
                 <div class="flex flex-col items-center gap-8 relative" data-vial="2">
+                    <div id="streak-2" class="streak-badge">COMBO X2</div>
                     <div id="precision-2" class="precision-tag glass-panel">--%</div>
                     <div id="vial-2" class="vial" data-index="2">
                         <div id="target-2" class="target-line"></div>
@@ -415,7 +419,7 @@
             <text x="25" y="95" font-family="monospace" font-size="9" font-weight="bold" fill="#38bdf8" text-anchor="middle" id="pipette-display">0.0</text>
             
             <path d="M10 205H40L30 250H20L10 205Z" fill="white" stroke="#e2e8f0" stroke-width="1"/>
-            <path d="M20 250H30L27 295C27 297.2 26.1 298 25 298C23.9 298 23 297.2 23 295L20 250Z" fill="white" fill-opacity="0.3" stroke="#94a3b8" stroke-width="1"/>
+            <path d="M20 250H30L27 295C27 297.2 26.1 298 25 298C23.9(23.9 298 23 297.2 23 295L20 250Z" fill="white" fill-opacity="0.3" stroke="#94a3b8" stroke-width="1"/>
             <circle id="pipette-nozzle-liquid" cx="25" cy="295" r="2.5" fill="#00d2ff" opacity="0" />
         </svg>
     </div>
@@ -423,6 +427,13 @@
     <script>
         const VIAL_COUNT = 3;
         const ELISA_TOXINS = ["Aflatoxin", "DON", "Ochratoxin", "Zearalenone", "Fumonisin", "T-2 / HT-2", "Ergot Alkaloids"];
+        const LAB_FACTS = [
+            "RomerLabs ensures global food safety through rapid testing.",
+            "ELISA tests detect specific proteins with high sensitivity.",
+            "Precision is the key to minimizing agricultural losses.",
+            "Aflatoxins are among the most poisonous mycotoxins known.",
+            "Our diagnostic kits provide results in minutes, not days."
+        ];
         
         const VIAL_COLORS = ['#00d2ff', '#4ade80', '#f87171'];
         const VIAL_GRADIENTS = [
@@ -436,6 +447,7 @@
         let gameActive = false;
         let roundOver = false;
         let isDispensing = false;
+        let perfectStreak = 0; // Combo counter
         
         let targetLevels = [0, 0, 0];
         let currentHeights = [0, 0, 0];
@@ -447,6 +459,7 @@
         const pipetteDisplay = document.getElementById('pipette-display');
         const nozzleLiquid = document.getElementById('pipette-nozzle-liquid');
         const gameContainer = document.getElementById('game-container');
+        const body = document.getElementById('main-body');
 
         function toggleGameCursor(enablePipette) {
             if (enablePipette) {
@@ -460,13 +473,10 @@
 
         document.addEventListener('mousemove', (e) => {
             if (!gameActive || roundOver) return;
-            
             pipette.style.left = e.clientX + 'px';
             pipette.style.top = e.clientY + 'px';
-
             const elements = document.elementsFromPoint(e.clientX, e.clientY);
             const vialElem = elements.find(el => el.classList.contains('vial'));
-            
             if (vialElem) {
                 const idx = parseInt(vialElem.dataset.index);
                 if (activeVialIndex !== idx) {
@@ -523,6 +533,8 @@
         function showVialPrecisionResult(index) {
             const diff = Math.abs(currentHeights[index] - targetLevels[index]);
             const tag = document.getElementById(`precision-${index}`);
+            const streakBadge = document.getElementById(`streak-${index}`);
+            
             let accuracy = Math.max(0, 100 - (diff * 2)).toFixed(1);
             let rating = "";
             let color = "";
@@ -530,33 +542,57 @@
             if (diff < 1) {
                 rating = "PERFECT!";
                 color = "#4ade80";
+                perfectStreak++;
+                if (perfectStreak > 1) {
+                    streakBadge.innerText = `STREAK X${perfectStreak}`;
+                    streakBadge.classList.add('active');
+                    createExplosion(index, true); // Gold success explosion
+                }
             } else if (diff < 3) {
                 rating = "EXCELLENT";
                 color = "#86efac";
+                perfectStreak = 0;
             } else if (diff < 6) {
                 rating = "GOOD";
                 color = "#fde047";
+                perfectStreak = 0;
             } else {
                 rating = "WASTED SAMPLE";
                 color = "#f87171";
+                perfectStreak = 0;
+                // Psychological trigger: Screen shake on failure
+                body.classList.add('shake-effect');
+                setTimeout(() => body.classList.remove('shake-effect'), 400);
             }
 
             tag.innerHTML = `<span style="color: ${color}">${rating}</span><br>${accuracy}%`;
             tag.classList.add('visible');
         }
 
-        // Improved preGameCalibration with robust visibility handling
+        function createExplosion(index, isGold) {
+            const vial = document.getElementById(`vial-${index}`);
+            const rect = vial.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top;
+            const color = isGold ? 'var(--romer-accent-gold)' : VIAL_COLORS[index];
+            for (let i = 0; i < 20; i++) {
+                createSplash(x, y, color);
+            }
+        }
+
         function preGameCalibration() {
             document.getElementById('start-screen').classList.add('hidden');
             const overlay = document.getElementById('calibration-overlay');
             const fill = document.getElementById('loader-fill');
+            const factText = document.getElementById('lab-fact');
             
+            factText.innerText = LAB_FACTS[Math.floor(Math.random() * LAB_FACTS.length)];
             overlay.classList.remove('hidden');
-            overlay.classList.add('flex'); // Set visibility via Tailwind classes
+            overlay.classList.add('flex');
 
             let progress = 0;
             const interval = setInterval(() => {
-                progress += (Math.random() * 4) + 1; // Faster and guaranteed progress
+                progress += (Math.random() * 3) + 1;
                 if (progress >= 100) {
                     progress = 100;
                     clearInterval(interval);
@@ -567,13 +603,14 @@
                     }, 600);
                 }
                 if (fill) fill.style.width = progress + '%';
-            }, 60);
+            }, 50);
         }
 
         function startGame() {
             document.getElementById('active-game').classList.remove('hidden');
             gameActive = true;
             roundOver = false;
+            perfectStreak = 0;
             toggleGameCursor(true);
             initRound();
         }
@@ -586,14 +623,12 @@
             
             document.getElementById('round-display').innerText = `${currentRound} / 3`;
             document.getElementById('round-result').classList.add('hidden');
-            
             toggleGameCursor(true);
 
             const speedText = currentRound === 1 ? "Normal" : (currentRound === 2 ? "High" : "EXPERT");
             document.getElementById('speed-indicator').innerText = `Calibration: ${speedText}`;
 
             const shuffledToxins = [...ELISA_TOXINS].sort(() => 0.5 - Math.random());
-            
             for (let i = 0; i < VIAL_COUNT; i++) {
                 const liquid = document.getElementById(`liquid-${i}`);
                 const surface = document.getElementById(`surface-${i}`);
@@ -601,7 +636,9 @@
                 const zone = document.getElementById(`zone-${i}`);
                 const label = document.getElementById(`toxin-${i}`);
                 const tag = document.getElementById(`precision-${i}`);
+                const streakB = document.getElementById(`streak-${i}`);
                 
+                streakB.classList.remove('active');
                 tag.classList.remove('visible');
                 label.innerText = shuffledToxins[i];
                 liquid.style.height = '0%';
@@ -611,7 +648,6 @@
 
                 targetLevels[i] = 25 + Math.random() * 55;
                 target.style.bottom = targetLevels[i] + '%';
-                
                 const tolerance = 11 - (currentRound * 3);
                 zone.style.height = (tolerance * 2) + '%';
                 zone.style.bottom = (targetLevels[i] - tolerance) + '%';
@@ -625,8 +661,8 @@
                 p.style.left = x + 'px';
                 p.style.top = y + 'px';
                 p.style.backgroundColor = color;
-                const tx = (Math.random() - 0.5) * 60;
-                const ty = -Math.random() * 40;
+                const tx = (Math.random() - 0.5) * 80;
+                const ty = (Math.random() - 0.7) * 80;
                 p.style.setProperty('--tx', tx + 'px');
                 p.style.setProperty('--ty', ty + 'px');
                 document.body.appendChild(p);
@@ -725,6 +761,9 @@
                 else if (diff < 8) roundPoints += 400;
                 else roundPoints += 100;
             }
+            // Add streak bonus to round points
+            if (perfectStreak > 0) roundPoints += (perfectStreak * 200);
+            
             const avgPoints = Math.round(roundPoints / VIAL_COUNT);
             totalScore += avgPoints;
             document.getElementById('score-display').innerText = totalScore;
@@ -761,12 +800,12 @@
             toggleGameCursor(false);
             let level = "Lab Assistant";
             let socialPercent = "top 45%";
-            if (totalScore > 2600) {
+            if (totalScore > 3200) {
                 level = "Principal Scientist";
-                socialPercent = "top 5%";
-            } else if (totalScore > 2000) {
+                socialPercent = "top 2%";
+            } else if (totalScore > 2400) {
                 level = "Senior Researcher";
-                socialPercent = "top 15%";
+                socialPercent = "top 10%";
             }
             document.getElementById('expertise-level').innerText = level;
             document.getElementById('social-proof-text').innerText = `You outperformed ${100 - parseInt(socialPercent.match(/\d+/)[0])}% of other specialists.`;
