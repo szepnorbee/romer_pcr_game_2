@@ -18,7 +18,6 @@
         body {
             font-family: 'Inter', sans-serif;
             background: var(--romer-teal);
-            /* Gradiens + finom technikai rács (grid) minta */
             background-image: 
                 radial-gradient(circle at top right, var(--romer-teal-light) 0%, var(--romer-teal) 100%),
                 linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
@@ -88,7 +87,6 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Glass Shine effect */
         .vial::after {
             content: '';
             position: absolute;
@@ -124,7 +122,31 @@
             z-index: 5;
         }
 
-        /* Particle effects */
+        /* Precision Feedback Animation */
+        .precision-tag {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.5);
+            opacity: 0;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-align: center;
+            white-space: nowrap;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            z-index: 60;
+        }
+
+        .precision-tag.visible {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+            top: -75px;
+        }
+
+        /* Splash Particles */
         .particle {
             position: absolute;
             width: 4px;
@@ -224,7 +246,7 @@
 </head>
 <body class="flex items-center justify-center">
 
-    <!-- Wordcloud Background Logo - Maximum prominence -->
+    <!-- Wordcloud Background Logo -->
     <div class="fixed inset-0 flex items-center justify-center opacity-40 pointer-events-none z-[-1] overflow-hidden">
         <img src="wordcloud_export.png" alt="RomerLabs Wordcloud Logo" class="w-full h-full max-w-[110%] max-h-[110%] object-contain scale-110" onerror="this.style.display='none'">
     </div>
@@ -264,15 +286,17 @@
             <p class="text-[var(--romer-accent-gold)] text-xs font-black uppercase tracking-[0.2em] mb-6">Expert Quality Control Analysis</p>
             <p class="text-white/60 mb-10 leading-relaxed">
                 Experience the accuracy of RomerLabs diagnostic solutions. 
-                Fill the test vials to the target line with surgical precision using the digital pipette.
+                Fill the test vials to the target line using the digital pipette.
             </p>
-            <button onclick="startGame()" class="btn-romer py-4 px-14 rounded-xl shadow-xl uppercase tracking-widest text-sm">Initiate Analysis</button>
+            <button onclick="startGame()" class="btn-romer py-4 px-14 rounded-xl shadow-xl uppercase tracking-widest text-sm">Start Analysis</button>
         </div>
 
         <!-- Active Game Area -->
         <div id="active-game" class="hidden flex flex-col items-center w-full max-w-5xl px-10">
             <div id="vials-row" class="flex justify-around items-end w-full gap-12 mt-12">
-                <div class="flex flex-col items-center gap-8" data-vial="0">
+                <!-- Vial 0 -->
+                <div class="flex flex-col items-center gap-8 relative" data-vial="0">
+                    <div id="precision-0" class="precision-tag glass-panel">--%</div>
                     <div id="vial-0" class="vial" data-index="0">
                         <div id="target-0" class="target-line"></div>
                         <div id="zone-0" class="perfect-zone"></div>
@@ -282,7 +306,9 @@
                     </div>
                     <span id="toxin-0" class="toxin-label uppercase">Aflatoxin</span>
                 </div>
-                <div class="flex flex-col items-center gap-8" data-vial="1">
+                <!-- Vial 1 -->
+                <div class="flex flex-col items-center gap-8 relative" data-vial="1">
+                    <div id="precision-1" class="precision-tag glass-panel">--%</div>
                     <div id="vial-1" class="vial" data-index="1">
                         <div id="target-1" class="target-line"></div>
                         <div id="zone-1" class="perfect-zone"></div>
@@ -292,7 +318,9 @@
                     </div>
                     <span id="toxin-1" class="toxin-label uppercase">DON</span>
                 </div>
-                <div class="flex flex-col items-center gap-8" data-vial="2">
+                <!-- Vial 2 -->
+                <div class="flex flex-col items-center gap-8 relative" data-vial="2">
+                    <div id="precision-2" class="precision-tag glass-panel">--%</div>
                     <div id="vial-2" class="vial" data-index="2">
                         <div id="target-2" class="target-line"></div>
                         <div id="zone-2" class="perfect-zone"></div>
@@ -304,29 +332,31 @@
                 </div>
             </div>
             
-            <!-- Instructions moved to fixed bottom to prevent logo overlap -->
+            <!-- Instructions footer -->
             <div class="fixed bottom-10 left-1/2 -translate-x-1/2 glass-panel py-4 px-12 rounded-full border-white/5 z-40 text-center min-w-[450px]">
                 <p class="text-sm font-semibold text-white/80 tracking-wide">Hold left mouse button to dispense | Target the red line</p>
                 <p id="speed-indicator" class="text-[10px] text-[var(--romer-accent-gold)] mt-1 uppercase tracking-[0.3em] font-black">Calibration: Normal</p>
             </div>
         </div>
 
+        <!-- Round results -->
         <div id="round-result" class="hidden absolute glass-panel p-12 rounded-[2rem] text-center z-50 min-w-[340px]">
             <h4 id="result-title" class="text-3xl font-black mb-3">Analysis Complete</h4>
             <p id="result-score" class="text-xl text-white/70 mb-10">+0 points</p>
             <button id="next-round-btn" class="btn-romer py-4 px-12 rounded-xl shadow-lg uppercase tracking-widest text-xs">Proceed</button>
         </div>
 
+        <!-- Final screen -->
         <div id="end-screen" class="hidden glass-panel p-14 rounded-[2.5rem] text-center max-w-lg z-50">
             <h3 class="text-4xl font-black text-white mb-3">Diagnostic Result</h3>
             <p class="text-white/50 mb-10 text-sm font-medium italic">"Making the World's Food Safer"</p>
             <div class="bg-white/5 p-10 rounded-3xl mb-10 border border-white/10">
                 <p class="stat-label mb-3">Certified Proficiency</p>
                 <p id="expertise-level" class="text-2xl font-black text-[var(--romer-accent-gold)] mb-8 tracking-tight">Standard</p>
-                <p class="stat-label mb-2">Aggregate Accuracy Score</p>
+                <p class="stat-label mb-2">Total Accuracy Score</p>
                 <p id="final-score" class="text-6xl font-black text-white tracking-tighter">0</p>
             </div>
-            <button onclick="location.reload()" class="btn-romer py-4 px-14 rounded-xl shadow-xl uppercase tracking-widest text-sm w-full">Restart Analysis</button>
+            <button onclick="location.reload()" class="btn-romer py-4 px-14 rounded-xl shadow-xl uppercase tracking-widest text-sm w-full">New Analysis</button>
         </div>
     </div>
 
@@ -432,16 +462,45 @@
                 pipette.classList.remove('dispensing');
                 if (activeVialIndex !== -1) {
                     document.getElementById(`vial-${activeVialIndex}`).classList.remove('filling');
+                    
+                    showVialPrecisionResult(activeVialIndex);
+                    
                     filledStatus[activeVialIndex] = true;
                     vialsFilledCount++;
                     if (vialsFilledCount === VIAL_COUNT) {
-                        setTimeout(evaluateRound, 800);
+                        setTimeout(evaluateRound, 1200);
                     }
                 }
                 nozzleLiquid.style.opacity = '0';
                 stopDrip();
             }
         });
+
+        function showVialPrecisionResult(index) {
+            const diff = Math.abs(currentHeights[index] - targetLevels[index]);
+            const tag = document.getElementById(`precision-${index}`);
+            
+            let accuracy = Math.max(0, 100 - (diff * 2)).toFixed(1);
+            let rating = "";
+            let color = "";
+
+            if (diff < 1) {
+                rating = "PERFECT!";
+                color = "#4ade80";
+            } else if (diff < 3) {
+                rating = "EXCELLENT";
+                color = "#86efac";
+            } else if (diff < 6) {
+                rating = "GOOD";
+                color = "#fde047";
+            } else {
+                rating = "POOR";
+                color = "#f87171";
+            }
+
+            tag.innerHTML = `<span style="color: ${color}">${rating}</span><br>${accuracy}%`;
+            tag.classList.add('visible');
+        }
 
         function startGame() {
             document.getElementById('start-screen').classList.add('hidden');
@@ -470,7 +529,9 @@
                 const target = document.getElementById(`target-${i}`);
                 const zone = document.getElementById(`zone-${i}`);
                 const label = document.getElementById(`toxin-${i}`);
+                const tag = document.getElementById(`precision-${i}`);
                 
+                tag.classList.remove('visible');
                 label.innerText = shuffledToxins[i];
                 liquid.style.height = '0%';
                 liquid.style.background = VIAL_GRADIENTS[i];
@@ -480,7 +541,9 @@
                 targetLevels[i] = 25 + Math.random() * 55;
                 target.style.bottom = targetLevels[i] + '%';
                 
-                const tolerance = 5 - currentRound;
+                // Set tolerance based on round: 8% (R1), 5% (R2), 2% (R3)
+                // Linear progression: 11 - (round * 3)
+                const tolerance = 11 - (currentRound * 3);
                 zone.style.height = (tolerance * 2) + '%';
                 zone.style.bottom = (targetLevels[i] - tolerance) + '%';
             }
@@ -565,9 +628,10 @@
                     isDispensing = false;
                     pipette.classList.remove('dispensing');
                     document.getElementById(`vial-${activeVialIndex}`).classList.remove('filling');
+                    showVialPrecisionResult(activeVialIndex);
                     filledStatus[activeVialIndex] = true;
                     vialsFilledCount++;
-                    if (vialsFilledCount === VIAL_COUNT) setTimeout(evaluateRound, 800);
+                    if (vialsFilledCount === VIAL_COUNT) setTimeout(evaluateRound, 1200);
                 }
                 
                 const liquidEl = document.getElementById(`liquid-${activeVialIndex}`);
@@ -609,13 +673,13 @@
 
             if (totalDeviation/3 < 2.5) {
                 resultTitle.innerText = "PRECISION VERIFIED";
-                resultTitle.className = "text-2xl font-black mb-2 text-green-500";
+                resultTitle.className = "text-3xl font-black mb-2 text-green-500";
             } else {
                 resultTitle.innerText = "ANALYSIS COMPLETE";
-                resultTitle.className = "text-2xl font-black mb-2 text-white";
+                resultTitle.className = "text-3xl font-black mb-2 text-white";
             }
 
-            resultScore.innerText = `Calibration Accuracy Score: +${avgPoints}`;
+            resultScore.innerText = `Average accuracy score: +${avgPoints}`;
             
             if (currentRound < 3) {
                 nextBtn.innerText = "Next Analysis";
