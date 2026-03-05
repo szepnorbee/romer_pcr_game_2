@@ -307,6 +307,27 @@
             border: 15px double var(--romer-teal);
             position: relative;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            /* Background Wordcloud */
+            background-image: url('wordcloud_export.png');
+            background-size: 80%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-blend-mode: soft-light;
+        }
+
+        /* Ensure text is readable over wordcloud */
+        #glp-certificate > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Faded overlay for wordcloud background */
+        #glp-certificate::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.85);
+            z-index: 1;
         }
 
         .cert-stamp {
@@ -326,6 +347,7 @@
             font-size: 10px;
             text-align: center;
             color: var(--romer-teal);
+            z-index: 3;
         }
 
         /* Chart Styling */
@@ -338,6 +360,52 @@
             fill: white;
             stroke: var(--romer-teal-light);
             stroke-width: 2;
+        }
+
+        /* PRINT STYLES - Crucial for clean certificate printing */
+        @media print {
+            @page {
+                size: portrait;
+                margin: 0;
+            }
+            body {
+                background: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            /* Hide everything except the certificate */
+            body > *:not(#game-container),
+            #game-container > *:not(#end-screen),
+            #end-screen > *:not(#glp-certificate),
+            .fixed,
+            .btn-romer,
+            .flex.gap-4 {
+                display: none !important;
+            }
+            /* Reset end-screen centering for printing */
+            #end-screen {
+                display: block !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            #glp-certificate {
+                width: 100% !important;
+                height: 100vh !important;
+                box-shadow: none !important;
+                border: 20px double var(--romer-teal) !important;
+                margin: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+            }
+            #glp-certificate::before {
+                background: rgba(255, 255, 255, 0.7) !important;
+            }
         }
     </style>
 </head>
@@ -477,7 +545,6 @@
                     </div>
                 </div>
 
-                <!-- Missing element added back -->
                 <p id="social-proof-text" class="text-[10px] text-teal-900/60 uppercase tracking-widest mt-4 text-center font-bold">Joining the top tier of ELISA analysts</p>
 
                 <div class="mt-8">
