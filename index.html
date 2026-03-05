@@ -419,7 +419,8 @@
             <text x="25" y="95" font-family="monospace" font-size="9" font-weight="bold" fill="#38bdf8" text-anchor="middle" id="pipette-display">0.0</text>
             
             <path d="M10 205H40L30 250H20L10 205Z" fill="white" stroke="#e2e8f0" stroke-width="1"/>
-            <path d="M20 250H30L27 295C27 297.2 26.1 298 25 298C23.9(23.9 298 23 297.2 23 295L20 250Z" fill="white" fill-opacity="0.3" stroke="#94a3b8" stroke-width="1"/>
+            <!-- Fixed the SVG path syntax error here -->
+            <path d="M20 250H30L27 295C27 297.2 26.1 298 25 298C23.9 298 23 297.2 23 295L20 250Z" fill="white" fill-opacity="0.3" stroke="#94a3b8" stroke-width="1"/>
             <circle id="pipette-nozzle-liquid" cx="25" cy="295" r="2.5" fill="#00d2ff" opacity="0" />
         </svg>
     </div>
@@ -447,7 +448,7 @@
         let gameActive = false;
         let roundOver = false;
         let isDispensing = false;
-        let perfectStreak = 0; // Combo counter
+        let perfectStreak = 0; 
         
         let targetLevels = [0, 0, 0];
         let currentHeights = [0, 0, 0];
@@ -546,7 +547,7 @@
                 if (perfectStreak > 1) {
                     streakBadge.innerText = `STREAK X${perfectStreak}`;
                     streakBadge.classList.add('active');
-                    createExplosion(index, true); // Gold success explosion
+                    createExplosion(index, true); 
                 }
             } else if (diff < 3) {
                 rating = "EXCELLENT";
@@ -560,7 +561,6 @@
                 rating = "WASTED SAMPLE";
                 color = "#f87171";
                 perfectStreak = 0;
-                // Psychological trigger: Screen shake on failure
                 body.classList.add('shake-effect');
                 setTimeout(() => body.classList.remove('shake-effect'), 400);
             }
@@ -611,6 +611,8 @@
             gameActive = true;
             roundOver = false;
             perfectStreak = 0;
+            totalScore = 0;
+            document.getElementById('score-display').innerText = '0';
             toggleGameCursor(true);
             initRound();
         }
@@ -761,7 +763,6 @@
                 else if (diff < 8) roundPoints += 400;
                 else roundPoints += 100;
             }
-            // Add streak bonus to round points
             if (perfectStreak > 0) roundPoints += (perfectStreak * 200);
             
             const avgPoints = Math.round(roundPoints / VIAL_COUNT);
@@ -798,17 +799,27 @@
             const endScreen = document.getElementById('end-screen');
             document.getElementById('final-score').innerText = totalScore;
             toggleGameCursor(false);
-            let level = "Lab Assistant";
-            let socialPercent = "top 45%";
-            if (totalScore > 3200) {
+            
+            // Re-balanced granularity for the final assessment
+            let level = "Intern";
+            let outperformed = 30;
+            
+            if (totalScore > 3500) {
                 level = "Principal Scientist";
-                socialPercent = "top 2%";
-            } else if (totalScore > 2400) {
+                outperformed = 99;
+            } else if (totalScore > 2800) {
                 level = "Senior Researcher";
-                socialPercent = "top 10%";
+                outperformed = 92;
+            } else if (totalScore > 2000) {
+                level = "Lab Technician";
+                outperformed = 75;
+            } else if (totalScore > 1200) {
+                level = "Junior Analyst";
+                outperformed = 55;
             }
+            
             document.getElementById('expertise-level').innerText = level;
-            document.getElementById('social-proof-text').innerText = `You outperformed ${100 - parseInt(socialPercent.match(/\d+/)[0])}% of other specialists.`;
+            document.getElementById('social-proof-text').innerText = `You outperformed ${outperformed}% of other specialists.`;
             endScreen.classList.remove('hidden');
             gameActive = false;
         }
