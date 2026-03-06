@@ -424,7 +424,6 @@
 
     <div id="calibration-overlay" class="hidden">
         <p class="stat-label text-white mb-2">System Initialization</p>
-        <!-- Font size increased to text-sm md:text-base for better readability -->
         <p id="lab-fact" class="text-sm md:text-base text-white font-medium italic max-w-sm px-6 text-center">Optimizing diagnostic accuracy parameters...</p>
         <div class="loader-bar">
             <div id="loader-fill" class="loader-fill"></div>
@@ -621,11 +620,18 @@
         function handleInputMove(clientX, clientY) {
             if (!gameActive || roundOver) return;
             
-            const offset = window.innerWidth < 768 ? 40 : 0;
-            pipette.style.left = clientX + 'px';
-            pipette.style.top = (clientY - offset) + 'px';
+            const isMobile = window.innerWidth < 768;
+            // Mobilon jelentősebb eltolást alkalmazunk (100px), hogy az ujj ne takarja a vialt
+            const offset = isMobile ? 100 : 0;
             
-            const elements = document.elementsFromPoint(clientX, clientY);
+            const targetX = clientX;
+            const targetY = clientY - offset;
+
+            pipette.style.left = targetX + 'px';
+            pipette.style.top = targetY + 'px';
+            
+            // Az ütközésvizsgálat (vial keresése) a pipetta hegyénél (targetY) történjen, nem az ujjnál
+            const elements = document.elementsFromPoint(targetX, targetY);
             const vialElem = elements.find(el => el.classList.contains('vial'));
             if (vialElem) {
                 const idx = parseInt(vialElem.dataset.index);
@@ -762,7 +768,6 @@
 
             let progress = 0;
             const interval = setInterval(() => {
-                // Slower increment (roughly 0.5-2.0% per 50ms) to allow reading
                 progress += (Math.random() * 1.5) + 0.5; 
                 if (progress >= 100) {
                     progress = 100;
@@ -797,6 +802,7 @@
             currentHeights = [0, 0, 0];
             
             document.getElementById('round-display').innerText = `${currentRound} / 3`;
+            document.getElementById('round-display').style.color = 'white';
             document.getElementById('round-result').classList.add('hidden');
             toggleGameCursor(true);
 
