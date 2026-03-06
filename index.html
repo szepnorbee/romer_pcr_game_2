@@ -28,7 +28,7 @@
             margin: 0;
             user-select: none;
             color: white;
-            touch-action: none; /* Prevents unwanted browser gestures like pull-to-refresh */
+            touch-action: none; 
         }
 
         .glass-panel {
@@ -55,7 +55,6 @@
             transform: translate(-25px, -295px) rotate(25deg) scale(0.45);
             transition: opacity 0.3s ease;
             opacity: 0;
-            /* On mobile, we might want to lift it slightly from the touch point */
         }
 
         @media (min-width: 768px) {
@@ -95,7 +94,7 @@
 
         .vial {
             position: relative;
-            width: 55px; /* Smaller for mobile */
+            width: 55px; 
             height: 150px;
             border: 2px solid rgba(255, 255, 255, 0.2);
             border-top: none;
@@ -425,7 +424,8 @@
 
     <div id="calibration-overlay" class="hidden">
         <p class="stat-label text-white mb-2">System Initialization</p>
-        <p id="lab-fact" class="text-[10px] text-white/50 italic max-w-xs text-center">Optimizing diagnostic accuracy parameters...</p>
+        <!-- Font size increased to text-sm md:text-base for better readability -->
+        <p id="lab-fact" class="text-sm md:text-base text-white font-medium italic max-w-sm px-6 text-center">Optimizing diagnostic accuracy parameters...</p>
         <div class="loader-bar">
             <div id="loader-fill" class="loader-fill"></div>
         </div>
@@ -621,7 +621,6 @@
         function handleInputMove(clientX, clientY) {
             if (!gameActive || roundOver) return;
             
-            // On mobile, we might offset the pipette so it's visible above the finger
             const offset = window.innerWidth < 768 ? 40 : 0;
             pipette.style.left = clientX + 'px';
             pipette.style.top = (clientY - offset) + 'px';
@@ -674,16 +673,14 @@
             }
         }
 
-        // Mouse Events
         document.addEventListener('mousemove', (e) => handleInputMove(e.clientX, e.clientY));
         window.addEventListener('mousedown', startDispense);
         window.addEventListener('mouseup', stopDispense);
 
-        // Touch Events
         document.addEventListener('touchmove', (e) => {
             const touch = e.touches[0];
             handleInputMove(touch.clientX, touch.clientY);
-            if (gameActive && !roundOver) e.preventDefault(); // Prevent scroll
+            if (gameActive && !roundOver) e.preventDefault(); 
         }, { passive: false });
         
         window.addEventListener('touchstart', (e) => {
@@ -765,7 +762,8 @@
 
             let progress = 0;
             const interval = setInterval(() => {
-                progress += (Math.random() * 3) + 1;
+                // Slower increment (roughly 0.5-2.0% per 50ms) to allow reading
+                progress += (Math.random() * 1.5) + 0.5; 
                 if (progress >= 100) {
                     progress = 100;
                     clearInterval(interval);
@@ -773,7 +771,7 @@
                         overlay.classList.add('hidden');
                         overlay.classList.remove('flex');
                         startGame();
-                    }, 600);
+                    }, 800);
                 }
                 if (fill) fill.style.width = progress + '%';
             }, 50);
@@ -869,13 +867,13 @@
                 const currentX = parseFloat(pipette.style.left);
                 const currentY = parseFloat(pipette.style.top);
                 drip.style.left = currentX + 'px';
-                drip.style.top = (currentY + 295 * 0.5) + 'px'; // Adjusted for pipette scale
+                drip.style.top = currentY + 'px'; 
                 const currentColor = VIAL_COLORS[activeVialIndex];
                 drip.style.backgroundColor = currentColor;
                 const vialElem = document.getElementById(`vial-${activeVialIndex}`);
                 const vialRect = vialElem.getBoundingClientRect();
                 const liquidSurfaceY = vialRect.bottom - (currentHeights[activeVialIndex] / 100 * vialRect.height);
-                const fallDistance = Math.max(0, liquidSurfaceY - (currentY + 295 * 0.5));
+                const fallDistance = Math.max(0, liquidSurfaceY - currentY);
                 drip.style.setProperty('--fall-dist', `${fallDistance}px`);
                 document.body.appendChild(drip);
                 setTimeout(() => {
